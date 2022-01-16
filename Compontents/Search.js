@@ -8,8 +8,6 @@ import Header from '../Header';
 
 function Search(props){
 
-    // updateResults()
-
     const [cities, setCities] = useState([])
     const [input, setInput] = useState('')
     let count = 0;
