@@ -10,6 +10,13 @@ let font = {}
 export default function WeatherWidget(props){
 
     font = props.font
+
+    //this just gets the first letter and replaces it with it's
+    //upper case equivalent
+    const formattedDescription = props.weatherDescription.replace(
+        props.weatherDescription.charAt(0),
+        props.weatherDescription.charAt(0).toUpperCase()
+    )
     
     const styles = StyleSheet.create({
         weatherContainer: {
@@ -52,7 +59,7 @@ export default function WeatherWidget(props){
             {props.weather == 'Rain' && <Ionicons name="rainy" size={32} color={props.textColor} style={{marginHorizontal:'3%'}}/>}
             <Text style={styles.weatherMeasurement}>{Math.round(props.temp)}ºC</Text>
             </View>
-            <Text style={styles.weatherTitle}>{props.weather}</Text>
+            <Text style={styles.weatherTitle}>{formattedDescription}</Text>
       </View>
     )
     
