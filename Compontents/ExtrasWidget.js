@@ -9,7 +9,7 @@ function ExtrasWidget(props) {
     const font = props.font
 
     const styles = StyleSheet.create({
-        extrasContainer: {
+        container: {
             // height: 'fi',
             justifyContent: 'center',
             alignItems: 'center',
@@ -26,11 +26,11 @@ function ExtrasWidget(props) {
             // opacity: 0.9
             width: '49%',
           },
-          extrasItem: {
+          item: {
             alignItems: 'center',
             marginHorizontal: '10%'
           },
-          extrasLabels: {
+          labels: {
             color: props.textColor,
             fontSize: 12,
             fontFamily: font.regular,
@@ -41,29 +41,29 @@ function ExtrasWidget(props) {
     return (
         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
           
-        <View style={styles.extrasContainer}>
-            <View style={styles.extrasItem}>
+        <View style={styles.container}>
+            <View style={styles.item}>
               <Ionicons style={{marginBottom: 5}} name="ios-water-outline" size={24} color={props.textColor} />
-              <Text style={styles.extrasLabels}>{props.humidity}% </Text>
-              <Text style={styles.extrasLabels}>Humidity</Text>
+              <Text style={styles.labels}>{props.humidity}% </Text>
+              <Text style={styles.labels}>Humidity</Text>
             </View>
-            <View style={styles.extrasItem}>
+            <View style={styles.item}>
               <Ionicons style={{marginBottom: 5}} name="body-outline" size={24} color={props.textColor} />
-              <Text style={styles.extrasLabels}>Feels like</Text>
-              <Text style={styles.extrasLabels}>{props.feelsLike}</Text>
+              <Text style={styles.labels}>Feels like</Text>
+              <Text style={styles.labels}>{props.feelsLike}</Text>
             </View>
         </View>
 
-        <View style={styles.extrasContainer}>
-            <View style={styles.extrasItem}>
+        <View style={styles.container}>
+            <View style={styles.item}>
               <Ionicons style={{marginBottom: 5}} name="ios-arrow-up-circle-outline" size={24} color={props.textColor} />
-              <Text style={styles.extrasLabels}>{props.min}</Text>
-              <Text style={styles.extrasLabels}>Min.</Text>
+              <Text style={styles.labels}>{props.min}</Text>
+              <Text style={styles.labels}>Min.</Text>
             </View>
-            <View style={styles.extrasItem}>
+            <View style={styles.item}>
               <Ionicons style={{marginBottom: 5}} name="ios-arrow-down-circle-outline" size={24} color={props.textColor} />
-              <Text style={styles.extrasLabels}>{props.max}</Text>
-              <Text style={styles.extrasLabels}>Max.</Text>
+              <Text style={styles.labels}>{props.max}</Text>
+              <Text style={styles.labels}>Max.</Text>
             </View>
         </View>
   
