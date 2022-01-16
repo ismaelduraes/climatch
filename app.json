@@ -24,10 +24,19 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "package": "com.durev.climatch"
+      "package": "com.durev.climatch",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyChLQBKCSoWXO5cpm7nwpmR01yxYtoLGWQ"
+        }
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "androidNavigationBar": {
+
+     "backgroundColor": "#000000"
     }
   }
 }

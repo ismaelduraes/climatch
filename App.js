@@ -1,158 +1,204 @@
-import { StyleSheet, Text, View, SafeAreaView, Image, TextInput, KeyboardAvoidingView, Dimensions, ScrollView } from 'react-native';
+import { StyleSheet, Text, ToastAndroid, View, SafeAreaView, Dimensions, ScrollView, BackHandler } from 'react-native';
 import { useState, useEffect } from 'react';
 
 import { StatusBar } from 'expo-status-bar';
-import AppLoading from 'expo-app-loading';
-
 import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
-
 import * as Location from 'expo-location';
-
 import { useFonts } from 'expo-font'
 
 import axios from 'axios';
 
+import Header from './Header';
 import WeatherWidget from './Compontents/WeatherWidget';
 import ExtrasWidget from './Compontents/ExtrasWidget';
-import SearchBar from './Compontents/SearchBar';
+import Search from './Compontents/Search';
 import MapWidget from './Compontents/MapWidget';
+import DailyWidget from './Compontents/DailyWidget';
 
-//exporting colors so i can put them into other
-//files and keep them in sync at the same time
 
+//exporting colors so i can import them into other
+//files and keep them all in sync at the same time
 
 const colors = {
 
   accent: 'black',
-  text: 'black',
-  widget: 'white',
-  lightgray: '#ededed'
+  text: 'white',
+  widget: '#1c1c1c',
+  background: 'black'
 
 }
 
 const font = {
 
   regular: 'Atkinson-Hyperlegible',
-  bold: 'Atkinson-Hyperlegible-Bold'
+  bold: 'Atkinson-Hyperlegible-Bold',
 
 }
 
 
 export default function App() {
-
-  const [hasData, setHasData] = useState(false)
-  const [latitude, setLatitude] = useState()
-  const [longitude, setLongitude] = useState()
-  const [cityName, setCityName] = useState('Gathering Location Data...')
-  const [weather, setWeather] = useState('')
-  const [temp, setTemp] = useState('')
-  const [humidity, setHumidity] = useState('')
-  const [min, setMin] = useState('')
-  const [max, setMax] = useState('')
-  const [feelsLike, setFeelsLike] = useState('')
-
-  async function getLocation(){
-    // console.log('test')
-    let { status } = await Location.requestForegroundPermissionsAsync();
-
-    if(status !== 'granted'){
-      console.log('access to location denied')
-      return
-    }
-
-
-    let locationData = await Location.getCurrentPositionAsync({})
-    setLatitude(locationData.coords.latitude)
-    console.log('set latitude to',latitude)
-    setLongitude(locationData.coords.longitude)
-    console.log('set longitude to',longitude)
-
-    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=0a21796140651dbcdc8855e2c91ea0ca`
-    console.log(`sending ${url}`)
-
-    axios.get(url).then(res => {
-      console.log('\n\n\n')
-      console.log(res.data)
-
-      setCityName(res.data.name)
-      setTemp(res.data.main.temp)
-      setMin(res.data.main.temp_min)
-      setMax(res.data.main.temp_max)
-      setFeelsLike(res.data.main.feels_like)
-      setHumidity(res.data.main.humidity)
-      setWeather(res.data.weather[0].main)
-      setHasData(true)
-      
-    }).catch(err => console.log(err))
-  }
-
-  useEffect(() => {
-    getLocation()
-  }, [])
-
   let [fontsLoaded] = useFonts({
     'Atkinson-Hyperlegible': require('./assets/fonts/AtkinsonHyperlegible.ttf'),
     'Atkinson-Hyperlegible-Bold': require('./assets/fonts/AtkinsonHyperlegible-Bold.ttf')
   });
 
-  if (!fontsLoaded){
-    return <AppLoading/>
+  const [hasData, setHasData] = useState(false)
+  const [loaded, setLoaded] = useState(false)
+
+  const [isSearching, setIsSearching] = useState(false)
+
+  const [weatherData, setWeatherData] = useState({})
+  const [locationData, setLocationData] = useState({})
+  const [initialLocationData, setInitialLocationData] = useState({})
+  const [statusBar, setStatusBar] = useState("dark")
+
+  BackHandler.addEventListener('hardwareBackPress', () => {
+    if(isSearching){
+      setIsSearching(false)
+    }
+  })
+
+  async function getLocation(){
+    let location = {}
+    if(!hasData){
+      let { status } = await Location.requestForegroundPermissionsAsync();
+
+      if(status !== 'granted'){
+        console.log('access to location denied')
+        ToastAndroid.show('Please allow Climatch to access your location', ToastAndroid.SHORT)
+        return
+      }
+
+      location = await Location.getCurrentPositionAsync({})
+      setInitialLocationData(location.coords)
+      setLocationData(location.coords)
+      setStates(location.coords)
+    }
+    setHasData(true)
+  }
+
+
+  function setStates(location){
+    if(hasData){
+      const weatherUrl = `http://api.openweathermap.org/data/2.5/weather?lat=${locationData.latitude}&lon=${locationData.longitude}&units=metric&appid=0a21796140651dbcdc8855e2c91ea0ca`
+      // ToastAndroid.show(weatherUrl, ToastAndroid.SHORT)
+
+      console.log(`sending ${weatherUrl}`)
+
+      axios.get(weatherUrl).then(res => {
+
+        setWeatherData({
+          cityName: res.data.name,
+          temp: res.data.main.temp,
+          min: res.data.main.temp_min,
+          max: res.data.main.temp_max,
+          feelsLike: res.data.main.feels_like,
+          humidity: res.data.main.humidity,
+          weather: res.data.weather[0].main,
+          latitude: location.latitude,
+          longitude: location.longitude,
+        })
+
+        setStatusBar("light")
+        setLoaded(true)
+      
+      }).catch(err => console.log(err))
+    }
+
+  }
+
+  useEffect(() => {
+    getLocation()
+    return () => {'cleaning'}
+    // console.log('ran')
+  }, [])
+
+  //set states if data has been gathered, or if
+  //selected location has been changed
+  useEffect(() => {
+    setStates(locationData)
+    // setStatusBar("light")
+    return () => {'cleaning'}
+  }, [hasData, locationData])
+
+  if (!fontsLoaded || !loaded){
+    return <Text style={styles.loading}>Carregando</Text>
   }
   else
   {
     return (
-
       <SafeAreaView style={styles.container}>
-        
 
         {/* <Image style={styles.bgImg} source={require('./assets/images/clear_bg.jpg')}/> */}
-        <LinearGradient style={styles.bgGradient} colors={['transparent', 'transparent', colors.widget]}/>
+        <LinearGradient style={styles.bgGradient} colors={['transparent', colors.background]}/>
 
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>climatch</Text>
-          <Ionicons name="settings-outline" size={24} color={colors.accent}/>
-        </View>
+        <Header
+        textColor = {colors.text}
+        background = {colors.background}
+        font = {font}
+        isSearching = {isSearching}
+        setIsSearching = {setIsSearching}
+        setLocationData = {setLocationData}
+        initialLocationData = {initialLocationData}
+        />
+
+        {isSearching &&
+        <Search
+        textColor = {colors.text}
+        widgetColor = {colors.widget}
+        font = {font}
+        background = {colors.background}
+        setLocationData = {setLocationData}
+        isSearching = {isSearching}
+        setIsSearching = {setIsSearching}
+        />
+        }
         
-        <ScrollView style={styles.mainView}>
-          <SearchBar
-          textColor = {colors.text}
-          widgetColor = {colors.widget}
-          font = {font}
-          />
+        {!isSearching &&
+        <ScrollView style={styles.mainView} contentContainerStyle={{marginBottom: '-50%'}}>
 
           <WeatherWidget
-          cityName = {cityName}
-          temp = {temp}
-          weather = {weather}
+          cityName = {weatherData.cityName}
+          temp = {weatherData.temp}
+          weather = {weatherData.weather}
           widgetColor = {colors.widget}
           font = {font}
           textColor = {colors.text}
           />
-          
+
           {hasData &&
           <MapWidget
           widgetColor = {colors.widget}
           textColor = {colors.text}
-          latitude = {latitude}
-          longitude = {longitude}
+          latitude = {locationData.latitude}
+          longitude = {locationData.longitude}
           mapType = 'terrain'
           />
           }
 
           <ExtrasWidget
-          humidity = {humidity}
-          min = {min}
-          max = {max}
-          feelsLike = {feelsLike}
+          humidity = {weatherData.humidity}
+          min = {weatherData.min}
+          max = {weatherData.max}
+          feelsLike = {weatherData.feelsLike}
           font = {font}
           widgetColor = {colors.widget}
           textColor = {colors.text}
           />
 
+          {hasData &&
+          <MapWidget
+          widgetColor = {colors.widget}
+          textColor = {colors.text}
+          latitude = {locationData.latitude}
+          longitude = {locationData.longitude}
+          mapType = 'hybrid'
+          />
+          }
         </ScrollView>
+        }
 
-        <StatusBar style="auto" />
+        <StatusBar style={statusBar} />
 
       </SafeAreaView>
     );
@@ -162,49 +208,28 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1,
-    backgroundColor: colors.lightgray,
-    // alignItems: 'center',
-    // justifyContent: 'center',
-    // paddingHorizontal: '3%',
-    // paddingVertical: '15%',
+    flex: 1,
+    backgroundColor: colors.background,
     height: '100%',
-    minHeight: Math.round(Dimensions.get('window').height)
-  },
-  bgImg: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
-    zIndex: -2,
-    opacity: 0.2,
+    minHeight: Math.round(Dimensions.get('window').height),
   },
   bgGradient: {
-    width: '100%',
-    height: '100%',
-    position: 'absolute',
-    zIndex: -1
-  },
-  header: {
-    // backgroundColor: accent,
-    paddingBottom: '5%',
-    // flex: 0,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: '5%',
-    // borderRadius: 15,
-    // elevation: 10,
-    // marginBottom: 0,
-    marginTop: '10%',
-    flexDirection: 'row',
-  },
-  headerTitle: {
-    fontFamily: font.bold,
-    fontSize: 30,
-    color: colors.accent
-    // fontWeight: 'bold',
+    height: '5%',
+    margin: '-5%',
+    zIndex: 2,
+    top: '98%',
+    left: '0%',
   },
   mainView: {
-    overflow: 'hidden',
+    overflow: 'visible',
+    paddingHorizontal: '3%',
+  },
+  loading: {
+    width: '100%',
+    height: '100%',
+    textAlign: 'center',
+    lineHeight: Math.round(Dimensions.get('window').height),
+    fontSize: 30
   },
 
 });

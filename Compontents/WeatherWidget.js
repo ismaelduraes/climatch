@@ -15,15 +15,16 @@ export default function WeatherWidget(props){
         weatherContainer: {
             // height: 'fi',
             justifyContent: 'center',
+            alignItems: 'center',
             backgroundColor: props.widgetColor,
             alignItems: 'center',
             padding: '10%',
             borderRadius: 20,
-            margin: '3%',
+            // margin: '3%',
             marginVertical: 5,
             // borderWidth: 3,
             borderColor: 'yellow',
-            elevation: 15,
+            // elevation: 15,
             // borderRadius: 10,
             // opacity: 0.9
         },
@@ -46,8 +47,12 @@ export default function WeatherWidget(props){
             <Text style={styles.weatherTitle}>{props.cityName}</Text>
             <View style={{flexDirection: 'row', alignItems: 'center'}}>
             {props.weather == 'Clouds' && <Ionicons name="md-cloud-outline" size={32} color={props.textColor} style={{marginHorizontal:'3%'}}/>}
-            <Text style={styles.weatherMeasurement}>{props.temp}ºC</Text>
+            {props.weather == 'Mist' && <Ionicons name="water-outline" size={32} color={props.textColor} style={{marginHorizontal:'3%'}}/>}
+            {props.weather == 'Clear' && <Ionicons name="sunny" size={32} color={props.textColor} style={{marginHorizontal:'3%'}}/>}
+            {props.weather == 'Rain' && <Ionicons name="rainy" size={32} color={props.textColor} style={{marginHorizontal:'3%'}}/>}
+            <Text style={styles.weatherMeasurement}>{Math.round(props.temp)}ºC</Text>
             </View>
+            <Text style={styles.weatherTitle}>{props.weather}</Text>
       </View>
     )
     
