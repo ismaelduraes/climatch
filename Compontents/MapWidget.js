@@ -36,14 +36,14 @@ function MapWidget(props){
                 {
                     latitude: props.latitude,
                     longitude: props.longitude,
-                    latitudeDelta: 0.5,
-                    longitudeDelta: 0.5
+                    latitudeDelta: 0.3,
+                    longitudeDelta: 0.3
                 }
             }
             mapType={props.mapType}
             userLocationPriority="passive"
-            zoomEnabled={true}
-            scrollEnabled={true}
+            // zoomEnabled={false}
+            // scrollEnabled={false}
             />
         </View>
     )
