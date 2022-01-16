@@ -13,7 +13,7 @@ import WeatherWidget from './Compontents/WeatherWidget';
 import ExtrasWidget from './Compontents/ExtrasWidget';
 import Search from './Compontents/Search';
 import MapWidget from './Compontents/MapWidget';
-import DailyWidget from './Compontents/DailyWidget';
+import WindWidget from './Compontents/WindWidget';
 
 
 //exporting colors so i can import them into other
@@ -53,17 +53,17 @@ export default function App() {
   const [statusBar, setStatusBar] = useState("dark")
 
   BackHandler.addEventListener('hardwareBackPress', () => {
-    if(isSearching){
+    if (isSearching) {
       setIsSearching(false)
     }
   })
 
-  async function getLocation(){
+  async function getLocation() {
     let location = {}
-    if(!hasData){
+    if (!hasData) {
       let { status } = await Location.requestForegroundPermissionsAsync();
 
-      if(status !== 'granted'){
+      if (status !== 'granted') {
         console.log('access to location denied')
         ToastAndroid.show('Please allow Climatch to access your location', ToastAndroid.SHORT)
         return
@@ -78,8 +78,8 @@ export default function App() {
   }
 
 
-  function setStates(location){
-    if(hasData){
+  function setStates(location) {
+    if (hasData) {
       const weatherUrl = `http://api.openweathermap.org/data/2.5/weather?lat=${locationData.latitude}&lon=${locationData.longitude}&units=metric&appid=0a21796140651dbcdc8855e2c91ea0ca`
       // ToastAndroid.show(weatherUrl, ToastAndroid.SHORT)
 
@@ -95,13 +95,16 @@ export default function App() {
           feelsLike: res.data.main.feels_like,
           humidity: res.data.main.humidity,
           weather: res.data.weather[0].main,
+          description: res.data.weather[0].description,
+          speed: res.data.wind.speed,
+          deg: res.data.wind.deg,
           latitude: location.latitude,
           longitude: location.longitude,
         })
 
         setStatusBar("light")
         setLoaded(true)
-      
+
       }).catch(err => console.log(err))
     }
 
@@ -109,7 +112,7 @@ export default function App() {
 
   useEffect(() => {
     getLocation()
-    return () => {'cleaning'}
+    return () => { 'cleaning' }
     // console.log('ran')
   }, [])
 
@@ -118,84 +121,93 @@ export default function App() {
   useEffect(() => {
     setStates(locationData)
     // setStatusBar("light")
-    return () => {'cleaning'}
+    return () => { 'cleaning' }
   }, [hasData, locationData])
 
-  if (!fontsLoaded || !loaded){
+  if (!fontsLoaded || !loaded) {
     return <Text style={styles.loading}>Carregando</Text>
   }
-  else
-  {
+  else {
     return (
       <SafeAreaView style={styles.container}>
 
         {/* <Image style={styles.bgImg} source={require('./assets/images/clear_bg.jpg')}/> */}
-        <LinearGradient style={styles.bgGradient} colors={['transparent', colors.background]}/>
+        <LinearGradient style={styles.bgGradient} colors={['transparent', colors.background]} />
 
         <Header
-        textColor = {colors.text}
-        background = {colors.background}
-        font = {font}
-        isSearching = {isSearching}
-        setIsSearching = {setIsSearching}
-        setLocationData = {setLocationData}
-        initialLocationData = {initialLocationData}
+          textColor={colors.text}
+          background={colors.background}
+          font={font}
+          isSearching={isSearching}
+          setIsSearching={setIsSearching}
+          setLocationData={setLocationData}
+          initialLocationData={initialLocationData}
         />
 
         {isSearching &&
-        <Search
-        textColor = {colors.text}
-        widgetColor = {colors.widget}
-        font = {font}
-        background = {colors.background}
-        setLocationData = {setLocationData}
-        isSearching = {isSearching}
-        setIsSearching = {setIsSearching}
-        />
+          <Search
+            textColor={colors.text}
+            widgetColor={colors.widget}
+            font={font}
+            background={colors.background}
+            setLocationData={setLocationData}
+            isSearching={isSearching}
+            setIsSearching={setIsSearching}
+          />
         }
-        
+
         {!isSearching &&
-        <ScrollView style={styles.mainView} contentContainerStyle={{marginBottom: '-50%'}}>
+          <ScrollView style={styles.mainView} contentContainerStyle={{ marginBottom: '-50%' }}>
 
-          <WeatherWidget
-          cityName = {weatherData.cityName}
-          temp = {weatherData.temp}
-          weather = {weatherData.weather}
-          widgetColor = {colors.widget}
-          font = {font}
-          textColor = {colors.text}
-          />
+            <WeatherWidget
+              cityName={weatherData.cityName}
+              temp={weatherData.temp}
+              weather={weatherData.weather}
+              widgetColor={colors.widget}
+              font={font}
+              textColor={colors.text}
+              weatherDescription={weatherData.description}
+            />
 
-          {hasData &&
-          <MapWidget
-          widgetColor = {colors.widget}
-          textColor = {colors.text}
-          latitude = {locationData.latitude}
-          longitude = {locationData.longitude}
-          mapType = 'terrain'
-          />
-          }
 
-          <ExtrasWidget
-          humidity = {weatherData.humidity}
-          min = {weatherData.min}
-          max = {weatherData.max}
-          feelsLike = {weatherData.feelsLike}
-          font = {font}
-          widgetColor = {colors.widget}
-          textColor = {colors.text}
-          />
+            {hasData &&
+              <MapWidget
+              widgetColor={colors.widget}
+              textColor={colors.text}
+              latitude={locationData.latitude}
+              longitude={locationData.longitude}
+              mapType='terrain'
+              />
+            }
+            
+            <WindWidget
+              font={font}
+              widgetColor={colors.widget}
+              textColor={colors.text}
+              speed = {weatherData.speed}
+              deg = {weatherData.deg}
+            />
 
-          {hasData &&
-          <MapWidget
-          widgetColor = {colors.widget}
-          textColor = {colors.text}
-          latitude = {locationData.latitude}
-          longitude = {locationData.longitude}
-          mapType = 'hybrid'
-          />
-          }
-        </ScrollView>
+            <ExtrasWidget
+              humidity={weatherData.humidity}
+              min={weatherData.min}
+              max={weatherData.max}
+              feelsLike={weatherData.feelsLike}
+              font={font}
+              widgetColor={colors.widget}
+              textColor={colors.text}
+            />
+
+            {hasData &&
+              <MapWidget
+                widgetColor={colors.widget}
+                textColor={colors.text}
+                latitude={locationData.latitude}
+                longitude={locationData.longitude}
+                mapType='hybrid'
+              />
+            }
+          </ScrollView>
         }
 
         <StatusBar style={statusBar} />
