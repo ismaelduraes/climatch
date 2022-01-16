@@ -157,7 +157,7 @@ export default function App() {
         }
 
         {!isSearching &&
-          <ScrollView style={styles.mainView} contentContainerStyle={{ marginBottom: '-50%' }}>
+          <ScrollView style={styles.mainView} contentContainerStyle={{ marginBottom: '-60%' }}>
 
             <WeatherWidget
               cityName={weatherData.cityName}
@@ -222,8 +222,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
-    height: '100%',
+    height: Math.round(Dimensions.get('window').height)+3,
     minHeight: Math.round(Dimensions.get('window').height),
+    top: -1,
   },
   bgGradient: {
     height: '5%',
@@ -235,6 +236,7 @@ const styles = StyleSheet.create({
   mainView: {
     overflow: 'visible',
     paddingHorizontal: '3%',
+    marginBottom: '10%',
   },
   loading: {
     width: '100%',
