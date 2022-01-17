@@ -14,12 +14,12 @@ function MapWidget(props){
             overflow: 'hidden',
             // margin: '3%',
             marginVertical: 5,
+            width: '100%',
             // elevation: 15
         },
         map: {
             width: '100%',
             height: '100%',
-            position: 'absolute',
             top: 0,
             left: 0,
             right: 0,
@@ -42,8 +42,8 @@ function MapWidget(props){
             }
             mapType={props.mapType}
             userLocationPriority="passive"
-            // zoomEnabled={false}
-            // scrollEnabled={false}
+            zoomEnabled={false}
+            scrollEnabled={false}
             />
         </View>
     )

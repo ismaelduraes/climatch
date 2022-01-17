@@ -1,4 +1,4 @@
-import { StyleSheet, Text, ToastAndroid, View, SafeAreaView, Dimensions, ScrollView, BackHandler } from 'react-native';
+import { StyleSheet, Text, ToastAndroid, SafeAreaView, Dimensions, ScrollView, BackHandler } from 'react-native';
 import { useState, useEffect } from 'react';
 
 import { StatusBar } from 'expo-status-bar';
@@ -7,6 +7,7 @@ import * as Location from 'expo-location';
 import { useFonts } from 'expo-font'
 
 import axios from 'axios';
+import { OPEN_WEATHER_API_KEY as apiKey } from './env'
 
 import Header from './Header';
 import WeatherWidget from './Compontents/WeatherWidget';
@@ -80,7 +81,7 @@ export default function App() {
 
   function setStates(location) {
     if (hasData) {
-      const weatherUrl = `http://api.openweathermap.org/data/2.5/weather?lat=${locationData.latitude}&lon=${locationData.longitude}&units=metric&appid=0a21796140651dbcdc8855e2c91ea0ca`
+      const weatherUrl = `http://api.openweathermap.org/data/2.5/weather?lat=${locationData.latitude}&lon=${locationData.longitude}&units=metric&appid=${apiKey}`
       // ToastAndroid.show(weatherUrl, ToastAndroid.SHORT)
 
       console.log(`sending ${weatherUrl}`)
@@ -157,7 +158,12 @@ export default function App() {
         }
 
         {!isSearching &&
-          <ScrollView style={styles.mainView} contentContainerStyle={{ marginBottom: '-60%' }}>
+          <ScrollView
+          style={styles.mainView}
+          contentContainerStyle={{ marginBottom: '-100%' }}
+          // overScrollMode="never"
+          >
+
 
             <WeatherWidget
               cityName={weatherData.cityName}
