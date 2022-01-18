@@ -1,5 +1,8 @@
-import { StyleSheet, Text, ToastAndroid, SafeAreaView, Dimensions, ScrollView, BackHandler } from 'react-native';
+import { StyleSheet, Text, ToastAndroid, SafeAreaView, Dimensions, ScrollView, BackHandler, View } from 'react-native';
 import { useState, useEffect } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -9,25 +12,14 @@ import { useFonts } from 'expo-font'
 import axios from 'axios';
 import { OPEN_WEATHER_API_KEY as apiKey } from './env'
 
-import Header from './Header';
+import Header from './Compontents/Header';
 import WeatherWidget from './Compontents/WeatherWidget';
 import ExtrasWidget from './Compontents/ExtrasWidget';
-import Search from './Compontents/Search';
 import MapWidget from './Compontents/MapWidget';
 import WindWidget from './Compontents/WindWidget';
 
-
-//exporting colors so i can import them into other
-//files and keep them all in sync at the same time
-
-const colors = {
-
-  accent: 'black',
-  text: 'white',
-  widget: '#1c1c1c',
-  background: 'black'
-
-}
+import Search from './Compontents/Screens/Search';
+import Settings from './Compontents/Screens/Settings'
 
 const font = {
 
@@ -36,8 +28,70 @@ const font = {
 
 }
 
+const darkTheme = {
+
+  name: 'dark',
+  accent: 'black',
+  text: 'white',
+  widget: '#1c1c1c',
+  background: 'black',
+  statusBar: 'light',
+
+}
+
+const lightTheme = {
+
+  name: 'light',
+  accent: 'black',
+  text: 'black',
+  widget: 'white',
+  background: '#fafafa',
+  statusBar: 'dark',
+
+}
 
 export default function App() {
+
+  //get unit setting
+  async function getUnitStorage(){
+    try{
+      let value = await AsyncStorage.getItem('unit')
+      setUnit(value)
+    }catch{ err => {
+      alert(err)
+    }}
+  }
+
+  //set unit setting
+  async function setUnitStorage(){
+    await AsyncStorage.setItem('unit', unit)
+  }
+
+  //get theme setting
+  async function getThemeStorage(){
+    try{
+
+      let tempColor = await AsyncStorage.getItem('theme')
+      if(tempColor !== null){
+        setTheme(JSON.parse(tempColor))
+      }
+      else{
+        setTheme(darkTheme)
+      }
+
+    }catch{e => alert(e)}
+  }
+
+  async function setThemeStorage(){
+    try{
+      await AsyncStorage.setItem('theme', JSON.stringify(theme))
+    }catch{ e=>
+      alert(e)
+    }
+  }
+
+
+
   let [fontsLoaded] = useFonts({
     'Atkinson-Hyperlegible': require('./assets/fonts/AtkinsonHyperlegible.ttf'),
     'Atkinson-Hyperlegible-Bold': require('./assets/fonts/AtkinsonHyperlegible-Bold.ttf')
@@ -46,21 +100,17 @@ export default function App() {
   const [hasData, setHasData] = useState(false)
   const [loaded, setLoaded] = useState(false)
 
+  const [unit, setUnit] = useState('Metric')
+  const [theme, setTheme] = useState(darkTheme)
+
   const [isSearching, setIsSearching] = useState(false)
+  const [isSetting, setIsSetting] = useState(false)
 
   const [weatherData, setWeatherData] = useState({})
   const [locationData, setLocationData] = useState({})
   const [initialLocationData, setInitialLocationData] = useState({})
-  const [statusBar, setStatusBar] = useState("dark")
-
-  BackHandler.addEventListener('hardwareBackPress', () => {
-    if (isSearching) {
-      setIsSearching(false)
-    }
-  })
 
   async function getLocation() {
-    let location = {}
     if (!hasData) {
       let { status } = await Location.requestForegroundPermissionsAsync();
 
@@ -70,18 +120,20 @@ export default function App() {
         return
       }
 
-      location = await Location.getCurrentPositionAsync({})
+      let location = await Location.getCurrentPositionAsync({})
       setInitialLocationData(location.coords)
       setLocationData(location.coords)
       setStates(location.coords)
     }
     setHasData(true)
+    // console.log(unit)
   }
 
 
   function setStates(location) {
+    // ToastAndroid.show('Updating', ToastAndroid.SHORT)
     if (hasData) {
-      const weatherUrl = `http://api.openweathermap.org/data/2.5/weather?lat=${locationData.latitude}&lon=${locationData.longitude}&units=metric&appid=${apiKey}`
+      const weatherUrl = `http://api.openweathermap.org/data/2.5/weather?lat=${locationData.latitude}&lon=${locationData.longitude}&units=${unit}&appid=${apiKey}`
       // ToastAndroid.show(weatherUrl, ToastAndroid.SHORT)
 
       console.log(`sending ${weatherUrl}`)
@@ -103,7 +155,6 @@ export default function App() {
           longitude: location.longitude,
         })
 
-        setStatusBar("light")
         setLoaded(true)
 
       }).catch(err => console.log(err))
@@ -113,6 +164,8 @@ export default function App() {
 
   useEffect(() => {
     getLocation()
+    getUnitStorage()
+    getThemeStorage()
     return () => { 'cleaning' }
     // console.log('ran')
   }, [])
@@ -123,63 +176,120 @@ export default function App() {
     setStates(locationData)
     // setStatusBar("light")
     return () => { 'cleaning' }
-  }, [hasData, locationData])
+  }, [hasData, locationData, unit])
 
+  useEffect(() => {
+    setUnitStorage()
+    // console.log(unit)
+  }, [unit])
+
+  useEffect(() => {
+    setThemeStorage()
+    // console.log(unit)
+  }, [theme])
+
+
+  //wait for fonts and data to be fetched
   if (!fontsLoaded || !loaded) {
-    return <Text style={styles.loading}>Carregando</Text>
+    return (
+    <View style={styles.loading}>
+      <Ionicons name="sunny" size={64} color={theme.text}/>
+    </View>
+    )
   }
+
+  //return main app
   else {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={{...styles.container, backgroundColor: theme.background}}>
+        <StatusBar style={theme.statusBar}/>
 
-        {/* <Image style={styles.bgImg} source={require('./assets/images/clear_bg.jpg')}/> */}
-        <LinearGradient style={styles.bgGradient} colors={['transparent', colors.background]} />
+        {/* gradient that sits near bottom of screen */}
+        <LinearGradient style={styles.bgGradient} colors={['transparent', theme.background]}/>
 
-        <Header
-          textColor={colors.text}
-          background={colors.background}
-          font={font}
-          isSearching={isSearching}
-          setIsSearching={setIsSearching}
-          setLocationData={setLocationData}
-          initialLocationData={initialLocationData}
-        />
 
+        {/* if user is currently searching for a city, this will be rendered */}
         {isSearching &&
-          <Search
-            textColor={colors.text}
-            widgetColor={colors.widget}
-            font={font}
-            background={colors.background}
-            setLocationData={setLocationData}
-            isSearching={isSearching}
-            setIsSearching={setIsSearching}
-          />
+          <View style={{height: '100%'}}>
+            <Search
+              textColor={theme.text}
+              widgetColor={theme.widget}
+              font={font}
+              background={theme.background}
+              setLocationData={setLocationData}
+
+              isSearching={isSearching}
+              setIsSearching={setIsSearching}
+
+            />
+          </View>
         }
 
-        {!isSearching &&
-          <ScrollView
-          style={styles.mainView}
-          contentContainerStyle={{ marginBottom: '-100%' }}
-          // overScrollMode="never"
-          >
+        {isSetting &&
+        <View style={{height: '100%'}}>
 
+          <Settings
+          textColor={theme.text}
+          widgetColor={theme.widget}
+          font={font}
+          background={theme.background}
+          setLocationData={setLocationData}
+
+          isSetting={isSetting}
+          setIsSetting={setIsSetting}
+
+          unit={unit}
+          setUnit={setUnit}
+
+          darkTheme={darkTheme}
+          lightTheme={lightTheme}
+          theme={theme}
+          setTheme={setTheme}
+          />
+
+        </View>
+        }
+
+
+        {/* if user is currently neither searching not in settings
+        return main screen*/}
+        {(!isSearching && !isSetting) &&
+        <View style={{height: '100%'}}>
+          <Header
+          textColor={theme.text}
+          background={theme.background}
+          font={font}
+          title={'Climatch'}
+          
+          isSearching={isSearching}
+          setIsSearching={setIsSearching}
+          isSetting={isSetting}
+          setIsSetting={setIsSetting}
+
+          setLocationData={setLocationData}
+          initialLocationData={initialLocationData}
+
+          iconName='sunny'
+          />
+          
+          <ScrollView style={styles.mainView} contentContainerStyle={{ marginBottom: -(Math.round(Dimensions.get('window').height)*0.5) }}>
 
             <WeatherWidget
               cityName={weatherData.cityName}
               temp={weatherData.temp}
               weather={weatherData.weather}
-              widgetColor={colors.widget}
+              widgetColor={theme.widget}
               font={font}
-              textColor={colors.text}
+              textColor={theme.text}
               weatherDescription={weatherData.description}
+              unit={unit}
             />
 
 
             {hasData &&
               <MapWidget
-              widgetColor={colors.widget}
-              textColor={colors.text}
+              widgetColor={theme.widget}
+              textColor={theme.text}
               latitude={locationData.latitude}
               longitude={locationData.longitude}
               mapType='terrain'
@@ -188,8 +298,8 @@ export default function App() {
             
             <WindWidget
               font={font}
-              widgetColor={colors.widget}
-              textColor={colors.text}
+              widgetColor={theme.widget}
+              textColor={theme.text}
               speed = {weatherData.speed}
               deg = {weatherData.deg}
             />
@@ -200,23 +310,22 @@ export default function App() {
               max={weatherData.max}
               feelsLike={weatherData.feelsLike}
               font={font}
-              widgetColor={colors.widget}
-              textColor={colors.text}
+              widgetColor={theme.widget}
+              textColor={theme.text}
             />
 
             {hasData &&
               <MapWidget
-                widgetColor={colors.widget}
-                textColor={colors.text}
+                widgetColor={theme.widget}
+                textColor={theme.text}
                 latitude={locationData.latitude}
                 longitude={locationData.longitude}
                 mapType='hybrid'
               />
             }
           </ScrollView>
+          </View>
         }
-
-        <StatusBar style={statusBar} />
 
       </SafeAreaView>
     );
@@ -226,8 +335,9 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: colors.background,
+    // flex: 1,
+    // justifyContent: 'center',
+    // alignItems: 'center',
     height: Math.round(Dimensions.get('window').height)+3,
     minHeight: Math.round(Dimensions.get('window').height),
     top: -1,
@@ -241,15 +351,15 @@ const styles = StyleSheet.create({
   },
   mainView: {
     overflow: 'visible',
+    height: '100%',
     paddingHorizontal: '3%',
-    marginBottom: '10%',
+    // marginBottom: '10%',
   },
   loading: {
-    width: '100%',
     height: '100%',
-    textAlign: 'center',
-    lineHeight: Math.round(Dimensions.get('window').height),
-    fontSize: 30
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'black',
   },
 
 });
