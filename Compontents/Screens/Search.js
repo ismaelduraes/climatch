@@ -28,7 +28,7 @@ function Search(props){
     const font = props.font
 
     const styles = StyleSheet.create({
-        searchModal: {
+        container: {
             position: 'absolute',
             height: '100%',
             width: '100%',
@@ -83,15 +83,19 @@ function Search(props){
     })
 
     return (
-        <View style={styles.searchModal}>
+        <View style={styles.container}>
             <Header
             
             isSearching = {props.isSearching}
             setIsSearching = {props.setIsSearching}
             setLocationData = {props.setLocationData}
+            isSetting={props.isSetting}
+            setIsSetting={props.setIsSetting}
             textColor = {props.textColor}
             font = {font}
             background = {props.background}
+            title='Search'
+            iconName='search'
             
             />
             <View style={styles.searchBar}>
@@ -127,8 +131,8 @@ function Search(props){
                             underlayColor="black"
                             >
                                 <View>
-                                    <Text style={{color: props.textColor, fontSize: 18}} key={city.wikiDataId}>{city.city}, {city.regionCode}</Text>
-                                    <Text style={{color: props.textColor, fontSize: 12}} key={city.wikiDataId + city.city}>{city.country}</Text>
+                                    <Text style={{color: props.textColor, fontSize: 18}} key={cities.indexOf(city)}>{city.city}, {city.regionCode}</Text>
+                                    <Text style={{color: props.textColor, fontSize: 12}} key={cities.indexOf(city) + city.city}>{city.country}</Text>
                                 </View>
                             </TouchableHighlight>
                         )

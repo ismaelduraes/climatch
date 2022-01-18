@@ -21,7 +21,9 @@ function ExtrasWidget(props) {
             // borderWidth: 3,
             // borderColor: accent,
             flexDirection: 'row',
-            // elevation: 15,
+            // elevation: 3,
+            // borderWidth: 1,
+            // borderColor: 'lightgray',
             // borderRadius: 10,
             // opacity: 0.9
             width: '49%',

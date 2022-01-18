@@ -30,8 +30,9 @@ export default function WeatherWidget(props){
             // margin: '3%',
             marginVertical: 5,
             // borderWidth: 3,
-            borderColor: 'yellow',
-            // elevation: 15,
+            // elevation: 3,
+            // borderWidth: 1,
+            // borderColor: 'lightgray',
             // borderRadius: 10,
             // opacity: 0.9
         },
@@ -57,7 +58,9 @@ export default function WeatherWidget(props){
             {props.weather == 'Mist' && <Ionicons name="water-outline" size={32} color={props.textColor} style={{marginHorizontal:'3%'}}/>}
             {props.weather == 'Clear' && <Ionicons name="sunny" size={32} color={props.textColor} style={{marginHorizontal:'3%'}}/>}
             {props.weather == 'Rain' && <Ionicons name="rainy" size={32} color={props.textColor} style={{marginHorizontal:'3%'}}/>}
-            <Text style={styles.weatherMeasurement}>{Math.round(props.temp)}ºC</Text>
+            {props.unit === 'Metric' && <Text style={styles.weatherMeasurement}>{Math.round(props.temp)}ºC</Text>}
+            {props.unit === 'Imperial' && <Text style={styles.weatherMeasurement}>{Math.round(props.temp)}ºF</Text>}
+            {props.unit === 'Kelvin' && <Text style={styles.weatherMeasurement}>{Math.round(props.temp)}ºK</Text>}
             </View>
             <Text style={styles.weatherTitle}>{formattedDescription}</Text>
       </View>

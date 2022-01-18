@@ -15,7 +15,9 @@ function MapWidget(props){
             // margin: '3%',
             marginVertical: 5,
             width: '100%',
-            // elevation: 15
+            // elevation: 3
+            // borderWidth: 1,
+            // borderColor: 'lightgray',
         },
         map: {
             width: '100%',
@@ -36,8 +38,8 @@ function MapWidget(props){
                 {
                     latitude: props.latitude,
                     longitude: props.longitude,
-                    latitudeDelta: 0.3,
-                    longitudeDelta: 0.3
+                    latitudeDelta: 0.8,
+                    longitudeDelta: 0.8
                 }
             }
             mapType={props.mapType}
