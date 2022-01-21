@@ -1,23 +1,25 @@
-import { StyleSheet, View } from 'react-native';
-import MapView from 'react-native-maps';
+import { useRef, useEffect } from 'react';
+import { StyleSheet, Animated } from 'react-native';
+import Animations from './Animations/Animations';
+import MapView, { Marker } from 'react-native-maps';
 
 function MapWidget(props){
 
+    const anim = useRef(new Animated.Value(100)).current
+    useEffect(() => {
+        Animations(anim, props.animDelay)
+    }, [])
+
     const styles = StyleSheet.create({
         container: {
-            // padding: '3%',
-            // flex: 1,
             alignItems: 'center',
             justifyContent: 'center',
             borderRadius: 20,
-            height: '25%',
+            height: '23%',
             overflow: 'hidden',
-            // margin: '3%',
             marginVertical: 5,
             width: '100%',
-            // elevation: 3
-            // borderWidth: 1,
-            // borderColor: 'lightgray',
+            transform: [{translateY: anim}]
         },
         map: {
             width: '100%',
@@ -32,14 +34,14 @@ function MapWidget(props){
     })
 
     return (
-        <View style={styles.container}>
+        <Animated.View style={styles.container}>
             <MapView style={styles.map}
             region={
                 {
                     latitude: props.latitude,
                     longitude: props.longitude,
-                    latitudeDelta: 0.8,
-                    longitudeDelta: 0.8
+                    latitudeDelta: props.delta,
+                    longitudeDelta: props.delta
                 }
             }
             mapType={props.mapType}
@@ -47,7 +49,7 @@ function MapWidget(props){
             zoomEnabled={false}
             scrollEnabled={false}
             />
-        </View>
+        </Animated.View>
     )
 }
 
