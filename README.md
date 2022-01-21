@@ -17,7 +17,7 @@ Integrates the OpenWeather API (real-time weather data) with the geodb API (city
 # Important
 - Please note that this app was only made for practice and study purposes only. You can do with this code whatever you will; but I don't plan on keeping it updated long term, nor do I guarantee that I will support it in the future.
 
-- Some older commits include API keys that were included for testing while this repository wasn't made public. They have since been replaced and won't work anymore. You will need your own Google Maps and OpenWeather API keys, which can be put in the app.json and .env files in the root directory of the repository, respectively.
+- Some older commits include API keys that were included for testing while this repository wasn't made public. They have since been replaced and won't work anymore, or are restricted and won't work on any build. You will need your own Google Maps and OpenWeather API keys, which can be put in the app.json and .env files in the root directory of the repository, respectively.
 See [Expo MapView](https://docs.expo.dev/versions/latest/sdk/map-view/) and [react-native-dotenv](https://github.com/goatandsheep/react-native-dotenv) (for importing .env variables)
 
 - Although the app probably won't be getting any new features, it is likely that I will update it's code to be more reliable and less repetitive.
