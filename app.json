@@ -1,14 +1,14 @@
 {
   "expo": {
-    "name": "climatch",
-    "slug": "climatch",
+    "name": "Climatch",
+    "slug": "Climatch",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/icons_android/icon.png",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./assets/icons_android/foreground.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#000000"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -17,7 +17,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "icon": "./assets/icons_ios/icon.png"
     },
     "android": {
       "config": {
@@ -26,13 +27,14 @@
         }
       },
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/icons_android/foreground.png",
+        "backgroundImage": "./assets/icons_android/background.png",
         "backgroundColor": "#FFFFFF"
       },
       "package": "com.durev.climatch"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/icons_android/icon.png"
     },
     "androidNavigationBar": {
 
