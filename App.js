@@ -11,7 +11,7 @@ import { useFonts } from 'expo-font'
 
 //load api stuff
 import axios from 'axios';
-import { OPEN_WEATHER_API_KEY } from '@env'
+import config from './config'
 
 //load pages
 import Loading from './Compontents/Screens/Loading';
@@ -95,8 +95,9 @@ export default function App() {
 
   function setStates(location) {
     if (hasLocation) {
-      const weatherUrl = `http://api.openweathermap.org/data/2.5/weather?lat=${locationData.latitude}&lon=${locationData.longitude}&units=${prefs.unit}&appid=${OPEN_WEATHER_API_KEY}`
+      const weatherUrl = `http://api.openweathermap.org/data/2.5/weather?lat=${locationData.latitude}&lon=${locationData.longitude}&units=${prefs.unit}&appid=${config.OPEN_WEATHER_API_KEY}`
       console.log(`sending ${weatherUrl}`)
+      // ToastAndroid.show(`sending ${weatherUrl}`, ToastAndroid.SHORT)
       axios.get(weatherUrl).then(res => {
         setWeatherData({
           cityName: res.data.name,
@@ -113,7 +114,7 @@ export default function App() {
           longitude: location.longitude,
         })
         setLoaded(true)
-      }).catch(err => console.log(err))
+      }).catch(() => ToastAndroid.show(`Something went wrong while fetching the weather. Try restarting your app, or check your internet connection.`, ToastAndroid.LONG))
     }
   }
 
