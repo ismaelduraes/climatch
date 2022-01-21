@@ -74,6 +74,5 @@ dist/
 
 # @end expo-cli
 
-# env.js
-assets/fonts/Poppins-ExtraBold.ttf
-assets/fonts/Poppins-Regular.ttf
+# env
+.env
