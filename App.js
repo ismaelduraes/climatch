@@ -11,7 +11,8 @@ import { useFonts } from 'expo-font'
 
 //load api stuff
 import axios from 'axios';
-import config from './config'
+import Constants from 'expo-constants';
+const apiKey = Constants.manifest.extra.OPEN_WEATHER_API_KEY
 
 //load pages
 import Loading from './Compontents/Screens/Loading';
@@ -95,7 +96,7 @@ export default function App() {
 
   function setStates(location) {
     if (hasLocation) {
-      const weatherUrl = `http://api.openweathermap.org/data/2.5/weather?lat=${locationData.latitude}&lon=${locationData.longitude}&units=${prefs.unit}&appid=${config.OPEN_WEATHER_API_KEY}`
+      const weatherUrl = `http://api.openweathermap.org/data/2.5/weather?lat=${locationData.latitude}&lon=${locationData.longitude}&units=${prefs.unit}&appid=${apiKey}`
       console.log(`sending ${weatherUrl}`)
       // ToastAndroid.show(`sending ${weatherUrl}`, ToastAndroid.SHORT)
       axios.get(weatherUrl).then(res => {
