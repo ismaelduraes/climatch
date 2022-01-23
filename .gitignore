@@ -72,7 +72,5 @@ buck-out/
 web-build/
 dist/
 
-# @end expo-cli
-
-# env
 app.json
+# @end expo-cli
