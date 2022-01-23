@@ -8,7 +8,7 @@ Integrates the OpenWeather API (real-time weather data) with the geodb API (city
 - Make sure you have the [expo-cli](https://docs.expo.dev/get-started/installation/) and [eas-cli](https://github.com/expo/eas-cli) installed in order to execute these commands.
 - Clone this repo:
 `git clone https://github.com/halaxysounds/climatch`
-- cd into your directory:
+- cd into it's directory:
 `cd climatch`
 - Optional: test app on your phone or in an emulator through Expo Go:
 `expo start` (Follow output instructions)
