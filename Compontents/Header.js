@@ -1,71 +1,130 @@
-// import { useState, useEffect } from 'react';
-import { StyleSheet, Dimensions, Text, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { useContext } from "react";
+import { StyleSheet, Dimensions, Text, View, Pressable } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { getStatusBarHeight } from "react-native-status-bar-height";
 
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons } from "@expo/vector-icons";
+import { ThemeContext } from "./Contexts/ThemeContext";
+import { WeatherContext } from "./Contexts/WeatherContext";
+import { PrefsContext } from "./Contexts/PrefsContext";
 
+import { useNavigation } from "@react-navigation/native";
 
-function Header(props){
-    // console.log(props.setIsSearching)
-    const font = props.font
-    const styles = StyleSheet.create({
-        header: {
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            paddingHorizontal: '5%',
-            paddingTop: '10%',
-            paddingBottom: '5%',
-            flexDirection: 'row',
-            zIndex: 1,
-            top: -1,
-            height: Math.round(Dimensions.get('window').height)*0.15,
-        },
-        headerTitle: {
-            fontFamily: font.bold,
-            fontSize: 30,
-            color: props.textColor
-        },
-        icon: {
-            marginLeft: '15%'
+const height = Dimensions.get("window").height;
+
+function Header({
+  iconName,
+  title,
+  showsSettings = false,
+  showsSearch = false,
+  showsReset = false,
+  showsClose = false,
+}) {
+  const theme = useContext(ThemeContext);
+  const weatherData = useContext(WeatherContext);
+  const prefsContext = useContext(PrefsContext);
+
+  const navigation = useNavigation();
+
+  const styles = StyleSheet.create({
+    container: {
+      position: "absolute",
+      width: "100%",
+      height: height,
+      zIndex: 1,
+    },
+    header: {
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingHorizontal: "5%",
+      paddingTop: getStatusBarHeight(),
+      flexDirection: "row",
+      zIndex: 1,
+      minHeight: 150,
+    },
+    headerTitle: {
+      fontFamily: theme.fontBold,
+      fontSize: 30,
+      color: theme.text,
+    },
+    icon: {
+      marginLeft: "15%",
+    },
+  });
+
+  return (
+    <View style={styles.container} pointerEvents="box-none">
+      <LinearGradient
+        colors={
+          theme.name === "light"
+            ? [theme.background, "#ffffff00"]
+            : [theme.background, "#00000000"]
         }
-    })
-
-    return (
-        <LinearGradient colors = {[props.background, props.background, 'transparent']} style = {styles.header}>
-
-            <View style = {{flexDirection: 'row', alignItems: 'center'}}>
-                <Ionicons
-                    style = {{marginRight: 10}}
-                    name = {props.iconName}
-                    size = {24}
-                    color = {props.textColor}
-                />
-
-                <Text style = {styles.headerTitle}>
-                    {props.title}
-                </Text>
-            </View>
-
-            {(!props.isSearching && !props.isSetting) &&
-
-                <View style = {{flexDirection: 'row', width: '35%', justifyContent: 'flex-end'}}>
-                    {props.locationData !== props.initialLocationData && <Ionicons onPress = {() => props.setLocationData(props.initialLocationData)}
-                        name="arrow-down" size = {26} color = {props.textColor}
-                        style={styles.icon}/>}
-                    <Ionicons onPress = {() => props.setIsSearching(true)}
-                        name="search" size = {26} color = {props.textColor}
-                        style={styles.icon}/>
-                    <Ionicons onPress = {() => props.setIsSetting(true)}
-                        name="settings-outline" size = {26} color = {props.textColor}
-                        style={styles.icon}/>
-                </View>
-
-            }
-            {props.isSearching && <Ionicons onPress = {() => props.setIsSearching(false)} name="close" size = {26} color = {props.textColor}/>}
-            {props.isSetting && <Ionicons onPress = {() => props.setIsSetting(false)} name="close" size = {26} color = {props.textColor}/>}
-            {/* <Ionicons name="settings-outline" size = {26} color = {props.textColor}/> */}
-        </LinearGradient>
-    )
+        style={styles.header}
+      >
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Ionicons
+            style={{ marginRight: 10 }}
+            name={iconName}
+            size={24}
+            color={theme.text}
+          />
+          <Text style={styles.headerTitle}>{title}</Text>
+        </View>
+        <View
+          style={{
+            flexDirection: "row",
+            width: "40%",
+            justifyContent: "flex-end",
+          }}
+        >
+          {showsReset ? (
+            <Ionicons
+              onPress={() => {
+                if (
+                  prefsContext.locationData !== prefsContext.initialLocationData
+                ) {
+                  prefsContext.setLocationData(
+                    prefsContext.initialLocationData
+                  );
+                }
+              }}
+              name="arrow-down"
+              size={26}
+              color={theme.text}
+              style={styles.icon}
+            />
+          ) : null}
+          {showsSearch ? (
+            <Ionicons
+              onPress={() => navigation.push("search")}
+              name="search"
+              size={26}
+              color={theme.text}
+              style={styles.icon}
+            />
+          ) : null}
+          {showsSettings ? (
+            <Ionicons
+              onPress={() => navigation.push("settings")}
+              name="settings-outline"
+              size={26}
+              color={theme.text}
+              style={styles.icon}
+            />
+          ) : null}
+          {showsClose ? (
+            <Ionicons
+              onPress={() => navigation.goBack()}
+              name="close"
+              size={26}
+              color={theme.text}
+            />
+          ) : null}
+        </View>
+      </LinearGradient>
+    </View>
+  );
 }
 
-export default Header
+export default Header;

@@ -9,15 +9,13 @@ import { Animated, Easing } from "react-native";
 //the animation should stop, both of which will default to
 //1000 and 0 respectively
 
-export default function Animations(anim, del, dur = 1000, to = 0){
-    let easing = Easing.out(Easing.exp)
-    Animated.timing(
-        anim, {
-            toValue: to,
-            duration: dur,
-            useNativeDriver: true,
-            easing,
-            delay: del
-        }
-    ).start()
+export default function Animations(anim, del, dur = 1000, to = 0) {
+  let easing = Easing.out(Easing.exp);
+  Animated.timing(anim, {
+    toValue: to,
+    duration: dur,
+    useNativeDriver: true,
+    easing,
+    delay: del,
+  }).start();
 }

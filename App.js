@@ -1,77 +1,78 @@
-import { StyleSheet, ToastAndroid,  SafeAreaView, View } from 'react-native';
-import { useState, useEffect } from 'react';
+import { StyleSheet, ToastAndroid, SafeAreaView, View } from "react-native";
+import { useState, useEffect, createContext } from "react";
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 //load system layout and styling stuff
-import { StatusBar } from 'expo-status-bar';
-import { LinearGradient } from 'expo-linear-gradient';
-import * as Location from 'expo-location';
-import { useFonts } from 'expo-font'
+import { StatusBar } from "expo-status-bar";
+import * as Location from "expo-location";
+import { useFonts } from "expo-font";
 
 //load api stuff
-import axios from 'axios';
-import Constants from 'expo-constants';
-const apiKey = Constants.manifest.extra.OPEN_WEATHER_API_KEY
+import axios from "axios";
+import Constants from "expo-constants";
+const apiKey = Constants.manifest.extra.OPEN_WEATHER_API_KEY;
 
 //load pages
-import Loading from './Compontents/Screens/Loading';
-import Home from './Compontents/Screens/Home';
-import Search from './Compontents/Screens/Search';
-import Settings from './Compontents/Screens/Settings'
+import Loading from "./Compontents/Screens/Loading";
+import Home from "./Compontents/Screens/Home";
+import Search from "./Compontents/Screens/Search";
+import Settings from "./Compontents/Screens/Settings";
 
-const font = {
-  regular: 'Atkinson-Hyperlegible',
-  bold: 'Atkinson-Hyperlegible-Bold',
-}
+import { ThemeContext, themes } from "./Compontents/Contexts/ThemeContext";
+import { WeatherContext } from "./Compontents/Contexts/WeatherContext";
+import { PrefsContext } from "./Compontents/Contexts/PrefsContext";
 
-const darkTheme = {
-  name: 'dark',
-  accent: 'black',
-  text: 'white',
-  widget: '#171717',
-  background: 'black',
-  statusBar: 'light',
-}
-const lightTheme = {
-  name: 'light',
-  accent: 'black',
-  text: 'black',
-  widget: 'white',
-  background: '#f5f5f5',
-  statusBar: 'dark',
-}
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+
+const Stack = createStackNavigator();
 
 export default function App() {
+  const [hasLocation, setHasLocation] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
-  const [hasLocation, setHasLocation] = useState(false)
-  const [loaded, setLoaded] = useState(false)
+  const [prefs, setPrefs] = useState({ unit: "Metric", theme: themes.dark });
 
-  const [prefs, setPrefs] = useState({unit: 'Metric', theme: lightTheme})
-  
-  const [isSearching, setIsSearching] = useState(false)
-  const [isSetting, setIsSetting] = useState(false)
+  const [isSearching, setIsSearching] = useState(false);
+  const [isSetting, setIsSetting] = useState(false);
 
-  const [weatherData, setWeatherData] = useState({})
-  const [locationData, setLocationData] = useState({})
-  const [initialLocationData, setInitialLocationData] = useState({})
+  const [weatherData, setWeatherData] = useState({});
+  const [locationData, setLocationData] = useState({});
+  const [initialLocationData, setInitialLocationData] = useState({});
+
+  const [theme, setTheme] = useState(themes.dark);
 
   //FONT LOADING
   let [fontsLoaded] = useFonts({
-    'Atkinson-Hyperlegible': require('./assets/fonts/AtkinsonHyperlegible.ttf'),
-    'Atkinson-Hyperlegible-Bold': require('./assets/fonts/AtkinsonHyperlegible-Bold.ttf')
+    "Atkinson-Hyperlegible": require("./assets/fonts/AtkinsonHyperlegible.ttf"),
+    "Atkinson-Hyperlegible-Bold": require("./assets/fonts/AtkinsonHyperlegible-Bold.ttf"),
   });
 
   //STORAGE
-  async function getStorage(){
-    try{
-      const storageData = await AsyncStorage.getItem('storage')
-      if (storageData !== null) setPrefs(JSON.parse(storageData))
-    }catch{e => {alert(e)}}
+  async function getStorage() {
+    try {
+      const storageData = await AsyncStorage.getItem("storage");
+      if (storageData !== null) {
+        setPrefs(JSON.parse(storageData));
+        setTheme(JSON.parse(storageData).theme);
+      }
+    } catch {
+      (e) => {
+        alert(e);
+      };
+    }
   }
-  async function setStorage(){
-    try{await AsyncStorage.setItem('storage', JSON.stringify(prefs))}
-    catch{e => {ToastAndroid.show(`Something went wrong and Climatch couldn't save your preferences: ${e}`, ToastAndroid.SHORT)}}
+  async function setStorage() {
+    try {
+      await AsyncStorage.setItem("storage", JSON.stringify(prefs));
+    } catch {
+      (e) => {
+        alert(
+          `Something went wrong and Climatch couldn't save your preferences: ${e}`
+        );
+      };
+    }
   }
   //
 
@@ -80,152 +81,110 @@ export default function App() {
     if (!hasLocation) {
       let { status } = await Location.requestForegroundPermissionsAsync();
 
-      if (status !== 'granted') {
-        console.log('access to location denied')
-        ToastAndroid.show(`Please allow Climatch to access your exact location; It can't work otherwise.`, ToastAndroid.SHORT)
-        return
+      if (status !== "granted") {
+        console.log("access to location denied");
+        alert(
+          `Please allow Climatch to access your exact location; It can't work otherwise.`
+        );
+        return false;
       } //else:
 
-      let location = await Location.getCurrentPositionAsync({})
-      setLocationData(location.coords)
-      setInitialLocationData(location.coords)
-      setStates(location.coords)
+      let location = await Location.getCurrentPositionAsync({});
+      setLocationData(location.coords);
+      setInitialLocationData(location.coords);
     }
-    setHasLocation(true)
+    return true;
   }
 
-  function setStates(location) {
-    if (hasLocation) {
-      const weatherUrl = `http://api.openweathermap.org/data/2.5/weather?lat=${locationData.latitude}&lon=${locationData.longitude}&units=${prefs.unit}&appid=${apiKey}`
-      console.log(`sending ${weatherUrl}`)
-      // ToastAndroid.show(`sending ${weatherUrl}`, ToastAndroid.SHORT)
-      axios.get(weatherUrl).then(res => {
-        setWeatherData({
-          cityName: res.data.name,
-          temp: res.data.main.temp,
-          min: res.data.main.temp_min,
-          max: res.data.main.temp_max,
-          feelsLike: res.data.main.feels_like,
-          humidity: res.data.main.humidity,
-          weather: res.data.weather[0].main,
-          description: res.data.weather[0].description,
-          speed: res.data.wind.speed,
-          deg: res.data.wind.deg,
-          latitude: location.latitude,
-          longitude: location.longitude,
+  function getWeatherData(location) {
+    if (
+      hasLocation &&
+      location.hasOwnProperty("latitude") &&
+      location.hasOwnProperty("longitude")
+    ) {
+      const weatherUrl = `http://api.openweathermap.org/data/2.5/weather?lat=${locationData.latitude}&lon=${locationData.longitude}&units=${prefs.unit}&appid=${apiKey}`;
+      axios
+        .get(weatherUrl)
+        .then((res) => {
+          setWeatherData({
+            cityName: res.data.name,
+            temp: res.data.main.temp,
+            min: res.data.main.temp_min,
+            max: res.data.main.temp_max,
+            feelsLike: res.data.main.feels_like,
+            humidity: res.data.main.humidity,
+            weather: res.data.weather[0].main,
+            description: res.data.weather[0].description,
+            speed: res.data.wind.speed,
+            deg: res.data.wind.deg,
+            latitude: location.latitude,
+            longitude: location.longitude,
+            location,
+          });
+          setLoaded(true);
         })
-        setLoaded(true)
-      }).catch(() => ToastAndroid.show(`Something went wrong while fetching the weather. Try restarting your app, or check your internet connection.`, ToastAndroid.LONG))
+        .catch((e) =>
+          alert(
+            `Something went wrong while fetching the weather. Try restarting your app, or check your internet connection. ${JSON.stringify(
+              e.response.data
+            )}`
+          )
+        );
     }
   }
 
   //get data needed on launch
   useEffect(() => {
-    getLocation()
-    getStorage()
-    return () => { 'cleaning' }
-  }, [])
+    setHasLocation(getLocation());
+    getStorage();
+  }, []);
 
   //reset states when new data has been gathered, or if
   //selected location has been changed
   useEffect(() => {
-    setStates(locationData)
-    return () => { 'cleaning' }
-  }, [hasLocation, locationData, prefs])
+    getWeatherData(locationData, initialLocationData);
+  }, [hasLocation, locationData, prefs]);
 
   //every time preferences are changed, store them
   //permanently
   useEffect(() => {
-    setStorage()
-  }, [prefs])
+    setStorage();
+  }, [prefs]);
 
   //wait for fonts and data to be fetched
-  if (!fontsLoaded || !loaded) return <Loading theme={prefs.theme}/>
-
+  if (!fontsLoaded || !loaded) return <Loading theme={prefs.theme} />;
   //return main app once all data is loaded and ready
   else {
     return (
-      <SafeAreaView style = {{backgroundColor: prefs.theme.background, ...styles.container}}>
-        
-        <StatusBar style = {prefs.theme.statusBar}/>
-        {
-          //^ sets status bar to apropriate color depending on theme
-        }
-        <LinearGradient style = {styles.bgGradient} colors = {['transparent', prefs.theme.background]}/>
-        {
-          //^ gradient that sits just above nav bar
-        }
-
-        {isSearching &&
-          <View>
-            <Search
-            textColor = {prefs.theme.text}
-            widgetColor = {prefs.theme.widget}
-            font = {font}
-            background = {prefs.theme.background}
-            setLocationData = {setLocationData}
-            isSearching = {isSearching}
-            setIsSearching = {setIsSearching}
-            />
-          </View>
-        }
-
-        {isSetting &&
-        <View style = {{height: '100%'}}>
-            <Settings
-            textColor = {prefs.theme.text}
-            widgetColor = {prefs.theme.widget}
-            font = {font}
-            background = {prefs.theme.background}
-            setLocationData = {setLocationData}
-            isSetting = {isSetting}
-            setIsSetting = {setIsSetting}
-            darkTheme = {darkTheme}
-            lightTheme = {lightTheme}
-            prefs = {prefs}
-            setPrefs = {setPrefs}/>
-        </View>
-        }
-
-        {(!isSearching && !isSetting) &&
-          //renders if user isn't searching or in settings
-          <Home
-          // these are the properties
-          // the children components will need
-          // to have passed down to them
-          textColor = {prefs.theme.text}
-          widgetColor = {prefs.theme.widget}
-          font = {font}
-          background = {prefs.theme.background}
-
-          locationData = {locationData}
-          setLocationData = {setLocationData}
-          initialLocationData = {initialLocationData}
-          isSearching = {isSearching}
-          setIsSearching = {setIsSearching}
-          isSetting = {isSetting}
-          setIsSetting = {setIsSetting}
-
-          weatherData = {weatherData}
-          unit={prefs.unit}
-          />
-        }
-
-      </SafeAreaView>
+      <PrefsContext.Provider
+        value={{
+          prefs,
+          setPrefs,
+          setTheme,
+          initialLocationData,
+          locationData,
+          setLocationData,
+        }}
+      >
+        <WeatherContext.Provider value={weatherData}>
+          <ThemeContext.Provider value={theme}>
+            <NavigationContainer>
+              <StatusBar style={theme.statusBar} />
+              <Stack.Navigator screenOptions={{ headerShown: false }}>
+                <Stack.Screen name="home" component={Home} />
+                <Stack.Screen name="search" component={Search} />
+                <Stack.Screen name="settings" component={Settings} />
+              </Stack.Navigator>
+            </NavigationContainer>
+          </ThemeContext.Provider>
+        </WeatherContext.Provider>
+      </PrefsContext.Provider>
     );
   }
-
 }
 
 const styles = StyleSheet.create({
-  bgGradient: {
-    height: '5%',
-    margin: '-5%',
-    zIndex: 2,
-    top: '98%',
-    left: '0%',
-},
-container: {
-  height: '100%'
-}
-})
+  container: {
+    // height: "100%",
+  },
+});
