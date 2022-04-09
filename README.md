@@ -10,9 +10,11 @@ Integrates the OpenWeather API (real-time weather data) with the geodb API (city
 `git clone https://github.com/halaxysounds/climatch`
 - cd into it's directory:
 `cd climatch`
+- install dependencies:
+`npm install`
 - Optional: test app on your phone or in an emulator through Expo Go:
 `expo start` (Follow output instructions)
-- If all is well, you can build the app through EAS with `eas build --profile preview`, or just `eas build` if you want an android bundle.
+- If all is well, you can build the app through EAS (Android) with `eas build --profile preview`, or just `eas build` if you want an android bundle.
 > If you're building through EAS, you will need an Expo account, and your build will be run on their own cloud servers. This has its own [benefits](https://expo.dev/eas), but you can use [turtle-cli](https://docs.expo.dev/classic/turtle-cli/) to build locally.
 # Important
 - The EAS Build process requires a git repository to be initialized in your directory. Since we're using `git clone`, that in itself won't be a problem. However, this means that, while building an app, EAS will only upload the files that aren't ignored by git. By default, our `app.json` file is included in .gitignore, so you don't accidentaly leak your keys when pushing to github. [There are other ways to manage keys in Expo](https://docs.expo.dev/build-reference/variables/) which you may be interested in if you plan on pushing this code yourself. For now, you can just comment out `app.json` from your .gitignore file before running `eas build`.
