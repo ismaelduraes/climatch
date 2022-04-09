@@ -15,6 +15,8 @@ Integrates the OpenWeather API (real-time weather data) with the geodb API (city
 - If all is well, you can build the app through EAS with `eas build --profile preview`, or just `eas build` if you want an android bundle.
 > If you're building through EAS, you will need an Expo account, and your build will be run on their own cloud servers. This has its own [benefits](https://expo.dev/eas), but you can use [turtle-cli](https://docs.expo.dev/classic/turtle-cli/) to build locally.
 # Important
+- The EAS Build process requires a git repository to be initialized in your directory. Since we're using `git clone`, that in itself won't be a problem. However, this means that, while building an app, EAS will only upload the files that aren't ignored by git. By default, our `app.json` file is included in .gitignore, so you don't accidentaly leak your keys when pushing to github. [There are other ways to manage keys in Expo](https://docs.expo.dev/build-reference/variables/) which you may be interested in if you plan on pushing this code yourself. For now, you can just comment out `app.json` from your .gitignore file before running `eas build`.
+
 - Please note that this app was only made for practice and study purposes only. You can do with this code whatever you will; but I don't plan on keeping it updated long term, nor do I guarantee that I will support it in the future.
 
 - Some older commits include API keys that were included for testing while this repository wasn't made public. They have since been replaced and won't work anymore. You will need your own Google Maps and OpenWeather API keys, which can be put in the app.json.TEMPLATE file (don't forget to rename the file to app.json).
