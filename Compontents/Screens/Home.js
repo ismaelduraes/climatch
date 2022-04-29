@@ -46,15 +46,13 @@ export default function Home(props) {
 
   return (
     <View style={styles.container}>
-      <Animated.View style={styles.header}>
-        <Header
-          title={"Climatch"}
-          iconName="sunny"
-          showsSettings
-          showsSearch
-          showsReset
-        />
-      </Animated.View>
+      <Header
+        title={"Climatch"}
+        iconName="sunny"
+        showsSettings
+        showsSearch
+        showsReset
+      />
 
       <Animated.ScrollView
         style={styles.mainView}
