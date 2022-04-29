@@ -21,7 +21,6 @@ function Header({
   showsClose = false,
 }) {
   const theme = useContext(ThemeContext);
-  const weatherData = useContext(WeatherContext);
   const prefsContext = useContext(PrefsContext);
 
   const navigation = useNavigation();
