@@ -1,5 +1,5 @@
-import { StyleSheet, ToastAndroid, SafeAreaView, View } from "react-native";
-import { useState, useEffect, createContext } from "react";
+import { StyleSheet } from "react-native";
+import { useState, useEffect } from "react";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -23,7 +23,11 @@ import { ThemeContext, themes } from "./Compontents/Contexts/ThemeContext";
 import { WeatherContext } from "./Compontents/Contexts/WeatherContext";
 import { PrefsContext } from "./Compontents/Contexts/PrefsContext";
 
-import { NavigationContainer } from "@react-navigation/native";
+import {
+  NavigationContainer,
+  DefaultTheme,
+  DarkTheme,
+} from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 
 const Stack = createStackNavigator();
@@ -33,9 +37,6 @@ export default function App() {
   const [loaded, setLoaded] = useState(false);
 
   const [prefs, setPrefs] = useState({ unit: "Metric", theme: themes.dark });
-
-  const [isSearching, setIsSearching] = useState(false);
-  const [isSetting, setIsSetting] = useState(false);
 
   const [weatherData, setWeatherData] = useState({});
   const [locationData, setLocationData] = useState({});
@@ -168,7 +169,9 @@ export default function App() {
       >
         <WeatherContext.Provider value={weatherData}>
           <ThemeContext.Provider value={theme}>
-            <NavigationContainer>
+            <NavigationContainer
+              theme={theme.name === "light" ? DefaultTheme : DarkTheme}
+            >
               <StatusBar style={theme.statusBar} />
               <Stack.Navigator screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="home" component={Home} />
