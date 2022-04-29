@@ -155,35 +155,33 @@ export default function App() {
   //wait for fonts and data to be fetched
   if (!fontsLoaded || !loaded) return <Loading theme={prefs.theme} />;
   //return main app once all data is loaded and ready
-  else {
-    return (
-      <PrefsContext.Provider
-        value={{
-          prefs,
-          setPrefs,
-          setTheme,
-          initialLocationData,
-          locationData,
-          setLocationData,
-        }}
-      >
-        <WeatherContext.Provider value={weatherData}>
-          <ThemeContext.Provider value={theme}>
-            <NavigationContainer
-              theme={theme.name === "light" ? DefaultTheme : DarkTheme}
-            >
-              <StatusBar style={theme.statusBar} />
-              <Stack.Navigator screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="home" component={Home} />
-                <Stack.Screen name="search" component={Search} />
-                <Stack.Screen name="settings" component={Settings} />
-              </Stack.Navigator>
-            </NavigationContainer>
-          </ThemeContext.Provider>
-        </WeatherContext.Provider>
-      </PrefsContext.Provider>
-    );
-  }
+  return (
+    <PrefsContext.Provider
+      value={{
+        prefs,
+        setPrefs,
+        setTheme,
+        initialLocationData,
+        locationData,
+        setLocationData,
+      }}
+    >
+      <WeatherContext.Provider value={weatherData}>
+        <ThemeContext.Provider value={theme}>
+          <NavigationContainer
+            theme={theme.name === "light" ? DefaultTheme : DarkTheme}
+          >
+            <StatusBar style={theme.statusBar} />
+            <Stack.Navigator screenOptions={{ headerShown: false }}>
+              <Stack.Screen name="home" component={Home} />
+              <Stack.Screen name="search" component={Search} />
+              <Stack.Screen name="settings" component={Settings} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </ThemeContext.Provider>
+      </WeatherContext.Provider>
+    </PrefsContext.Provider>
+  );
 }
 
 const styles = StyleSheet.create({
